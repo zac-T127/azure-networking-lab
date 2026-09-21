@@ -37,19 +37,37 @@ A /24 was picked for both subnets to provide 256 addresses per subnet while keep
 ## Web Server Configuration
 Nginx was installed on the vm-web-01 to host a basic test webpage, HTTP uses TCP on port 80 so a NSG rule was created to allow for HTTP traffic.
 ## Private Network Connectivity
-![
-## Network Security
+The Windows VM (vm-internal-02) was deployed in the internal subnet using a private IP address 10.0.2.4. The Linux web server (vm-web-01) was deployed in the web subnet using the private IP 10.0.1.4.
 
+The connection between these two subnets was tested by connecting to an Nginx web server that was deployed within the Linux VM. The webpage loaded successfully and this confirmed that the two virtual machines were able to communicate across the Azure VNet.
+
+![Private HTTP Connectivity](screenshots/private-http-connectivity.png)
+## Network Security
+A Network Security Group (NSG) was created to control traffic going to the web server.
+
+An inbound security rule was configured to allow TCP traffic on port 80 for HTTP access to the Nginx web server.
+
+![NSG HTTP Rule](screenshots/nsg-http-rule.png)
 ## Troubleshooting Scenario
 
 ### Issue
+The website that was being hosted on the Linux VM was now inaccessible from the Windows VM. When a connection was attempted it would result in a timeout.
 
+![Private HTTP Connectivity Problem](screenshots/private-http-connectivity-problem.png)
 ### Investigation
+A ping test to 10.0.1.4 was working which confirmed that the two VM's still had basic network connectivity.
 
+I then used Test-NetConnection to test TCP port 80. The ping test worked but the TCP test failed, this highlighted that the problem was related to TCP port 80 rather than a genral connection issue.
+
+The NSG rules were investigated and a Deny rule relating to TCP port 80 was found. This deny rule had a higher priority than the allow HTTPS rule.
+
+![TCP Test Fail](screenshots/TCP-test-fail.png)
 ### Resolution
-
+The Deny rule was removed from the Network Security Group allowing the HTTP rule to grant TCP port 80 traffic again.
 ### Validation
+Test-NetConnection was run again after removing the Deny rule and TCP test was now successful. Now the Nginx webpage was able to load on the Windows VM,
 
+![Restored HTTP Connectivity](screenshots/TCP-test-success.png)
 ## Skills Gained
 
 ## Key Takeaways
