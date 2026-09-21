@@ -18,6 +18,8 @@ The network will then be configured with security controls while virtual machine
 | Web Subnet | 10.0.1.0/24 | Create a subnet for public facing services
 | Internal Subnet | 10.0.2.0/24 | Create a subnet for private services
 
+![Vnet Subnets](screenshots/vnet-subnets.png)
+
 ## Design Decisions
 
 A /16 design for Vnet was chosen to allow for plenty of room for subnets as the environment expands.
@@ -62,6 +64,8 @@ I then used Test-NetConnection to test TCP port 80. The ping test worked but the
 The NSG rules were investigated and a Deny rule relating to TCP port 80 was found. This deny rule had a higher priority than the allow HTTPS rule.
 
 ![TCP Test Fail](screenshots/TCP-test-fail.png)
+
+![HTTP Deny Rule](screenshots/HTTP-deny-rule.png)
 ### Resolution
 The Deny rule was removed from the Network Security Group allowing the HTTP rule to grant TCP port 80 traffic again.
 ### Validation
